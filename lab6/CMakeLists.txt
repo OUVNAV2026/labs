@@ -10,10 +10,10 @@ find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(GTSAM REQUIRED)
 find_package(glog REQUIRED)
-find_package(ultralytics_ros REQUIRED)
+find_package(yolo_msgs REQUIRED)
 
 add_executable(deliverable_3 src/deliverable_3.cpp)
-ament_target_dependencies(deliverable_3 rclcpp std_msgs geometry_msgs visualization_msgs ultralytics_ros tf2 tf2_ros)
+ament_target_dependencies(deliverable_3 rclcpp std_msgs geometry_msgs visualization_msgs yolo_msgs tf2 tf2_ros)
 target_link_libraries(deliverable_3 gtsam glog::glog)
 target_include_directories(deliverable_3 PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

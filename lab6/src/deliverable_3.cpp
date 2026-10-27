@@ -1,11 +1,11 @@
 #include "rclcpp/rclcpp.hpp"
-#include <ultralytics_ros/msg/yolo_result.hpp>
+// #include <ultralytics_ros/msg/yolo_result.hpp>
 
 #include "tf2_ros/buffer.h"
 #include "tf2_ros/transform_listener.h"
 #include "geometry_msgs/msg/transform_stamped.hpp"
 #include "tf2/exceptions.h"
-
+#include "yolo_msgs/msg/detection_array.hpp"
 #include "deliverable_3.hpp"
 
 class MyNode : public rclcpp::Node
@@ -13,27 +13,26 @@ class MyNode : public rclcpp::Node
 public:
     MyNode(): Node("my_node"), tf_buffer_(this->get_clock()), tf_listener_(tf_buffer_)
     {
-        subscription_ = this->create_subscription<ultralytics_ros::msg::YoloResult>(
+        subscription_ = this->create_subscription<yolo_msgs::msg::DetectionArray>(
             "/yolo_result", 1, std::bind(&MyNode::topic_callback, this, std::placeholders::_1));
     }
 
 private:
     // ros2 interface show ultralytics_ros/msg/YoloResult
-    void topic_callback(const ultralytics_ros::msg::YoloResult::SharedPtr msg) const
+    void topic_callback(const yolo_msgs::msg::DetectionArray::SharedPtr msg) const
     {
         RCLCPP_INFO(this->get_logger(), "====================");
         RCLCPP_INFO(this->get_logger(), "I received a message");
         RCLCPP_INFO(this->get_logger(), "====================");
 
-        for (auto det :  msg->detections.detections)
+        for (const auto & det :  msg->detections)
         {
-            for (auto res :  det.results)
-            {
-                auto class_id = res.hypothesis.class_id;
-                auto score = res.hypothesis.score;
-                RCLCPP_INFO(this->get_logger(), "class_id: '%s'", class_id.c_str());
-                RCLCPP_INFO(this->get_logger(), "score: %.02f%%", score*100);
-            }
+
+
+            double score = det.score;
+            int class_id = det.class_id;
+            RCLCPP_INFO(this->get_logger(), "class_id: %d", class_id);
+            RCLCPP_INFO(this->get_logger(), "score: %.02f%%", score*100);
             auto x = det.bbox.center.position.x;
             auto y = det.bbox.center.position.y;
             RCLCPP_INFO(this->get_logger(), "center: (%.02f, %.02f)", x, y);
@@ -64,7 +63,8 @@ private:
     }
 
     // subscribe to yolo results
-    rclcpp::Subscription<ultralytics_ros::msg::YoloResult>::SharedPtr subscription_;
+    // rclcpp::Subscription<ultralytics_ros::msg::YoloResult>::SharedPtr subscription_;
+    rclcpp::Subscription<yolo_msgs::msg::DetectionArray>::SharedPtr subscription_;
     tf2_ros::Buffer tf_buffer_;
     tf2_ros::TransformListener tf_listener_;
 };
